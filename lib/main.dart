@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -26,9 +27,37 @@ class RepoListPage extends StatefulWidget {
   State<RepoListPage> createState() => _RepoListPageState();
 }
 
-class _RepoListPageState extends State<RepoListPage> {
+class Repo {
+  const Repo({
+    required this.id,
+    required this.fullName,
+  });
 
-  List<String> list = ['前方よしを考える', 'コトに向かって走れ', '共闘が一番燃える', '挑戦と利益がエンジン'];
+  final int id;
+  final String fullName;
+}
+
+class _RepoListPageState extends State<RepoListPage> {
+  final repoList = <Repo>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _getRepos();
+  }
+
+  void _getRepos() async {
+    try {
+      var response = await Dio().get('https://api.github.com/orgs/flutter/repos');
+      final data = response.data;
+      setState(() {
+        repoList.clear();
+        repoList.addAll(data.map<Repo>((item) => Repo(id: item['id'], fullName: item['full_name'])).toList());
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,34 +66,16 @@ class _RepoListPageState extends State<RepoListPage> {
         title: const Text('Flutter Github List'),
         centerTitle: true,
       ),
-      body: ListView(
-        children: <Widget>[
-          ListTile(
+      body: ListView.builder(
+        itemCount: repoList.length,
+        itemBuilder: (BuildContext context, int index) {
+          final text = repoList[index].fullName;
+          return ListTile(
             leading: const Icon(Icons.home, color: Colors.red),
-            title: const Text('前方よしを考える'),
-            onTap: () {
-              Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const RepoDetail(title: '前方よしを考える');
-                    },
-                  ),
-              );
-            },
-          ),
-          const ListTile(
-            leading: Icon(Icons.home, color: Colors.red),
-            title: Text('コトに向かって走れ'),
-          ),
-          const ListTile(
-            leading: Icon(Icons.home, color: Colors.red),
-            title: Text('共闘が一番燃える'),
-          ),
-          const ListTile(
-            leading: Icon(Icons.home, color: Colors.red),
-            title: Text('挑戦と利益がエンジン'),
-          ),
-        ]
+            title: Text(text),
+            onTap: () => Navigator.of(context).push(RepoDetail.route(text)),
+          );
+        },
       ),
     );
   }
@@ -72,6 +83,14 @@ class _RepoListPageState extends State<RepoListPage> {
 
 class RepoDetail extends StatelessWidget {
   const RepoDetail({super.key, required this.title});
+
+  static MaterialPageRoute route(final String text) {
+    return MaterialPageRoute(
+      builder: (context) {
+        return RepoDetail(title: text);
+      },
+    );
+  }
 
   final String title;
 
