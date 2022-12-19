@@ -14,54 +14,73 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const RepoListPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class RepoListPage extends StatefulWidget {
+  const RepoListPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<RepoListPage> createState() => _RepoListPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _RepoListPageState extends State<RepoListPage> {
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  List<String> list = ['前方よしを考える', 'コトに向かって走れ', '共闘が一番燃える', '挑戦と利益がエンジン'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Flutter Github List'),
+        centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: ListView(
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.home, color: Colors.red),
+            title: const Text('前方よしを考える'),
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const RepoDetail(title: '前方よしを考える');
+                    },
+                  ),
+              );
+            },
+          ),
+          const ListTile(
+            leading: Icon(Icons.home, color: Colors.red),
+            title: Text('コトに向かって走れ'),
+          ),
+          const ListTile(
+            leading: Icon(Icons.home, color: Colors.red),
+            title: Text('共闘が一番燃える'),
+          ),
+          const ListTile(
+            leading: Icon(Icons.home, color: Colors.red),
+            title: Text('挑戦と利益がエンジン'),
+          ),
+        ]
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    );
+  }
+}
+
+class RepoDetail extends StatelessWidget {
+  const RepoDetail({super.key, required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      )
     );
   }
 }
